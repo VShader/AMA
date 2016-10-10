@@ -1,0 +1,32 @@
+%a)
+ezplot('sin(x)', [-2*pi, 2*pi])
+title('ezplot sin(x)')
+xlabel('x-Achse')
+ylabel('y-Achse')
+figure(2)
+fplot(@(x)sin(x), [-2*pi, 2*pi])
+title('fplot sin(x)')
+xlabel('x-Achse')
+ylabel('y-Achse')
+
+%b)
+figure(3)
+hold on
+ezplot('sin(x)', [-pi,pi, -1, 1])
+ezplot('cos(x)', [-pi,pi, -1, 1])
+ezplot('tan(x)', [-pi,pi, -1 ,1])
+title('ezplot sin(x), cos(x), tan(x)')
+xlabel('x-Achse')
+ylabel('y-Achse')
+hold off
+figure(4)
+hold on
+xlim([-pi,pi])
+ylim([-1,1])
+fplot(@(x)sin(x), [-pi,pi])
+fplot(@(x)cos(x), [-pi,pi])
+fplot(@(x)tan(x), [-pi,pi])
+hold off
+title('fplot sin(x), cos(x), tan(x)')
+xlabel('x-Achse')
+ylabel('y-Achse')
