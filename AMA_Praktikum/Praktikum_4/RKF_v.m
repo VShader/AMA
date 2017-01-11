@@ -30,18 +30,18 @@ function [ X, Y, FS ] = RKF_v( dgl, Interv, y0, h0, epsabs, event, eps_Abbruch )
 %     k4=h*dgl(x+3/4*h0, y0+69/128*k1 - 243/128*k2 + 135/64*k3);
 %     k5=h*dgl(x+h0, y0-17/12*k1 + 27/4*k2 - 27/5*k3 + 16/15*k4);
 %     k6=h*dgl(x+5/6*h0, y0+65/432*k1 - 5/16*k2 + 13/16*k3 + 4/27*k4 + 5/144*k5);
-%     
+%
 %     y0 = y0+(47/450*k1 + 12/25*k3 + 32/225*k4 + 1/30*k5 + 6/25*k6);
 %     D = 1/300*(-2*k1 + 9*k3 -64*k4 -15*k5 + 72*k6);
 % end
 
-dgl=dgl(:);
+%dgl=dgl(:);
 FS = 0;
 h = h0;
 x = Interv(1);
 y = y0;
 X = x;
-Y = y;
+Y = y';
 
 rc = 0;
 if epsabs <= 0
@@ -59,33 +59,34 @@ while Interv(2) - x > 0
     
     [xh, Yh, D] = RKF_Schritt(dgl,x,y,h);
     
-    if event == 1
-        s=norm(Y(k,[3 4])-Y(k,[1 2]),2);
-        s=min(s,abs(Y(k,3)));
-    elseif event == 2
-        s=norm(Y(k,:)-y0',2);
-    end
-    if s <= eps_Abbruch
-        return;
-    end
     
-    if norm(D, 2) < epsabs(h) * epsi
+    
+    if norm(D, 2) <  epsabs
         % akzeptieren
         x=xh;
-        y=Yh;
-        FS=[FS;D];
-        Y=[Y;Yh];
+        y=Yh;disp(['size(Yh) = ',int2str(size(Yh))])
+        FS=[FS;norm(D,2)];
+        Y=[Y;Yh'];
         X=[X;xh];
-        if norm(D, 2)< abs(h) * epsi/50
-            h = 2*h;
+        if event == 1
+            s=norm(Yh([3 4])-Yh([1 2]),2);
+            s=min(s,abs(Yh(3)));
+        elseif event == 2
+            s=norm(Yh(:)-y0',2);
+        end
+        if s <= eps_Abbruch
+            return;
+        end
+        if norm(D, 2)< epsabs/2
+            h = 1/0.875*h;
         end
     else
         % NICHT akzeptieren
-        h = h/2;
-%         if h < hmin
-%             h = hmin;
-%             rc = 3;
-%         end
+        h = 0.875*h;
+        %         if h < hmin
+        %             h = hmin;
+        %             rc = 3;
+        %         end
     end
 end
 
@@ -111,6 +112,8 @@ function [x,Y, D]=RKF_Schritt(dgls, x0, y0, h)
 
 x = x0 + h;
 k1=h*dgls(x, y0);
+disp(['size(k1) = ',int2str(size(k1))])
+disp(['size(y0) = ',int2str(size(y0))])
 k2=h*dgls(x+2/9*h, y0+2/9.*k1);
 k3=h*dgls(x+1/3*h, y0+1/12.*k1 + 1/4.*k2);
 k4=h*dgls(x+3/4*h, y0+69/128.*k1 - 243/128.*k2 + 135/64.*k3);
